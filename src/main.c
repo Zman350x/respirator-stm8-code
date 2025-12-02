@@ -50,13 +50,13 @@ int main(void) // Clock at 2MHz at startup
         if (buttonStatus)
         {
             GPIOD->ODR &= ~(GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5);
-            GPIOD->ODR |= GPIO_PIN_2;
+            /* GPIOD->ODR |= GPIO_PIN_2; */
             /* counter4ms = 0; */
         }
         else
         {
             GPIOD->ODR |= GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5;
-            GPIOD->ODR &= ~GPIO_PIN_2;
+            /* GPIOD->ODR &= ~GPIO_PIN_2; */
         }
     }
 }
@@ -66,14 +66,14 @@ int main(void) // Clock at 2MHz at startup
 void reset(void)
 {
     /* GPIOA->CR2 |= GPIO_PIN_3; // Enable interrupts on button */
-    /* ITC_EXTI->CR1 = (0b11 << 0); // Port A interrupts on rising and falling edge */
+    ITC_EXTI->CR1 = (0b11 << 0); // Port A interrupts on rising and falling edge
     buttonStatus = !(GPIOA->IDR & GPIO_PIN_3); // Button active low
     lastValidButtonInterrupt = 0;
 
     TIM4->PSCR = 5; // Prescaler of 32, results in a 62.5kHz timer
     TIM4->ARR = 249; // (249 + 1)/(62.5kHz) means interrupt every 4 ms
     TIM4->CR1 = 0x01; // Enable timer 4
-    TIM4->IER = 0x01; // Enbale timer 4 interrupts
+    /* TIM4->IER = 0x01; // Enbale timer 4 interrupts */
     counter4ms = 0;
 
     GPIOD->DDR = GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5; // Configure buzzer and LEDs as outputs

@@ -6,13 +6,23 @@ INCDIR=include
 OUTDIR=output
 
 CC=sdcc
-CCFLAGS=-I$(INCDIR) --Werror -lstm8 -mstm8 --out-fmt-ihx --std-sdcc23 --debug
+COMMON_CCFLAGS=-I$(INCDIR) --Werror -lstm8 -mstm8 --std-sdcc23
+DEBUG_CCFLAGS=--out-fmt-elf --debug
+RELEASE_CCFLAGS=--out-fmt-ihx
 
 DEPS:=$(wildcard $(INCDIR)/*.h)
 SRC:=$(wildcard $(SRCDIR)/*.c)
 OBJ:=$(SRC:$(SRCDIR)/%.c=$(OBJDIR)/%.rel)
 
-EXE=respirator.ihx
+EXE_BASE=respirator
+
+ifeq ($(DEBUG), 1)
+	EXE:=$(EXE_BASE).elf
+	CCFLAGS:=$(COMMON_CCFLAGS) $(DEBUG_CCFLAGS)
+else
+	EXE:=$(EXE_BASE).ihx
+	CCFLAGS:=$(COMMON_CCFLAGS) $(RELEASE_CCFLAGS)
+endif
 
 all: $(EXE)
 
