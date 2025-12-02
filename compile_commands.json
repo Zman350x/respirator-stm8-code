@@ -1,0 +1,20 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-c",
+      "-Iinclude",
+      "-include",
+      "clangd_sdcc_compat.h",
+      "-Wall",
+      "-std=c23",
+      "-g",
+      "-o",
+      "src/obj/main.o",
+      "src/main.c"
+    ],
+    "directory": "__FULL_PATH_TO_BASE_DIR__",
+    "file": "__FULL_PATH_TO_BASE_DIR__/src/main.c",
+    "output": "__FULL_PATH_TO_BASE_DIR_/src/obj/main.o"
+  }
+]
