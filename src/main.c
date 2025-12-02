@@ -26,7 +26,7 @@
 
 // FUNCTION PROTOTYPES
 
-void reset(void);
+void setup(void);
 
 // GLOBALS
 
@@ -41,7 +41,7 @@ int main(void) // Clock at 2MHz at startup
 {
     __asm__("rim"); // Enable interrupt support
 
-    reset();
+    setup();
 
     while (1)
     {
@@ -50,20 +50,22 @@ int main(void) // Clock at 2MHz at startup
         if (buttonStatus)
         {
             GPIOD->ODR &= ~(GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5);
-            /* GPIOD->ODR |= GPIO_PIN_2; */
+            GPIOC->ODR |= GPIO_PIN_3 | GPIO_PIN_5 | GPIO_PIN_7;
+            GPIOD->ODR |= GPIO_PIN_2;
             /* counter4ms = 0; */
         }
         else
         {
             GPIOD->ODR |= GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5;
-            /* GPIOD->ODR &= ~GPIO_PIN_2; */
+            GPIOC->ODR &= ~(GPIO_PIN_3 | GPIO_PIN_5 | GPIO_PIN_7);
+            GPIOD->ODR &= ~GPIO_PIN_2;
         }
     }
 }
 
 // HELPER FUNCTIONS
 
-void reset(void)
+void setup(void)
 {
     /* GPIOA->CR2 |= GPIO_PIN_3; // Enable interrupts on button */
     ITC_EXTI->CR1 = (0b11 << 0); // Port A interrupts on rising and falling edge
@@ -76,9 +78,12 @@ void reset(void)
     /* TIM4->IER = 0x01; // Enbale timer 4 interrupts */
     counter4ms = 0;
 
+    GPIOD->ODR = GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5; // Turn off LEDs as they're active low
     GPIOD->DDR = GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5; // Configure buzzer and LEDs as outputs
     GPIOD->CR1 = GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5; // Push-pull outputs
-    GPIOD->ODR = GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5; // Turn off LEDs as they're active low
+
+    GPIOC->DDR = GPIO_PIN_3 | GPIO_PIN_5 | GPIO_PIN_7; // Configure fans and ERM motor as outputs
+    GPIOC->CR1 = GPIO_PIN_3 | GPIO_PIN_5 | GPIO_PIN_7; // Push-pull outputs
 }
 
 // INTERRUPTS
