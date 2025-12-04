@@ -6,7 +6,7 @@ INCDIR=include
 OUTDIR=output
 
 CC=sdcc
-COMMON_CCFLAGS=-I$(INCDIR) --Werror -lstm8 -mstm8 --std-sdcc11 --verbose --fverbose-asm
+COMMON_CCFLAGS=-I$(INCDIR) --Werror -lstm8 -mstm8 --std-sdcc23 --verbose --fverbose-asm
 DEBUG_CCFLAGS=--out-fmt-elf --debug
 RELEASE_CCFLAGS=--out-fmt-ihx
 

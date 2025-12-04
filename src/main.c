@@ -33,7 +33,7 @@ void setup(void);
 volatile uint32_t counter4ms;
 
 volatile uint32_t lastValidButtonInterrupt;
-volatile uint8_t buttonStatus;
+volatile bool buttonStatus;
 
 // MAIN
 
@@ -69,7 +69,7 @@ void setup(void)
     __asm__("sim"); // Disable interrupt support
 
     GPIOA->CR2 |= GPIO_PIN_3; // Enable interrupts on button
-    ITC_EXTI->CR1 = (3 << 0); // Port A interrupts on rising and falling edge
+    ITC_EXTI->CR1 = (0b11 << 0); // Port A interrupts on rising and falling edge
     buttonStatus = !(GPIOA->IDR & GPIO_PIN_3); // Button active low
     lastValidButtonInterrupt = 0;
 
