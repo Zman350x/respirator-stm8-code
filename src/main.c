@@ -1,6 +1,7 @@
-#include "clangd_sdcc_compat.h"
 #include "stm8.h"
-#include <stdint.h>
+#include "setup.h"
+#include "interrupts.h"
+#include "i2c.h"
 
 /* PINOUT
  *
@@ -26,37 +27,33 @@
 
 // FUNCTION PROTOTYPES
 
-void setup(void);
-
-// GLOBALS
-
-volatile uint32_t counter4ms;
-
-volatile uint32_t lastValidButtonInterrupt;
-volatile bool buttonStatus;
+void reset(void);
 
 // MAIN
 
 int main(void) // Clock at 2MHz at startup
 {
-
     setup();
+    reset();
+
+    /* txBuffer[0] = 0x36; */
+    /* txBuffer[1] = 0x82; */
+    /* i2cTransmit(0x59, 2); */
+    /* i2cReveive(0x59, 9); */
 
     while (1)
     {
-        buttonStatus = !(GPIOA->IDR & GPIO_PIN_3); // Button active low
-        /* if (counter4ms > 500) */
+        /* buttonStatus = !(GPIOA->IDR & GPIO_PIN_3); // Button active low */
         if (buttonStatus)
         {
-            GPIOD->ODR &= ~(GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5);
-            GPIOC->ODR |= GPIO_PIN_3 | GPIO_PIN_5 | GPIO_PIN_7;
+            /* GPIOD->ODR &= ~(GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5); */
+            GPIOC->ODR |= /* GPIO_PIN_3 | */ GPIO_PIN_5 | GPIO_PIN_7;
             /* GPIOD->ODR |= GPIO_PIN_2; */
-            /* counter4ms = 0; */
         }
         else
         {
-            GPIOD->ODR |= GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5;
-            GPIOC->ODR &= ~(GPIO_PIN_3 | GPIO_PIN_5 | GPIO_PIN_7);
+            /* GPIOD->ODR |= GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5; */
+            GPIOC->ODR &= ~(/* GPIO_PIN_3 | */ GPIO_PIN_5 | GPIO_PIN_7);
             /* GPIOD->ODR &= ~GPIO_PIN_2; */
         }
     }
@@ -64,41 +61,9 @@ int main(void) // Clock at 2MHz at startup
 
 // HELPER FUNCTIONS
 
-void setup(void)
+void reset(void)
 {
-    __asm__("sim"); // Disable interrupt support
-
-    GPIOA->CR2 |= GPIO_PIN_3; // Enable interrupts on button
-    ITC_EXTI->CR1 = (0b11 << 0); // Port A interrupts on rising and falling edge
-    buttonStatus = !(GPIOA->IDR & GPIO_PIN_3); // Button active low
-    lastValidButtonInterrupt = 0;
-
-    TIM4->PSCR = 5; // Prescaler of 32, results in a 62.5kHz timer
-    TIM4->ARR = 249; // (249 + 1)/(62.5kHz) means interrupt every 4 ms
-    TIM4->CR1 = 0x01; // Enable timer 4
-    TIM4->IER = 0x01; // Enbale timer 4 interrupts
     counter4ms = 0;
-
-    GPIOD->ODR = GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5; // Turn off LEDs as they're active low
-    GPIOD->DDR = GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5; // Configure buzzer and LEDs as outputs
-    GPIOD->CR1 = GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5; // Push-pull outputs
-
-    GPIOC->DDR = GPIO_PIN_3 | GPIO_PIN_5 | GPIO_PIN_7; // Configure fans and ERM motor as outputs
-    GPIOC->CR1 = GPIO_PIN_3 | GPIO_PIN_5 | GPIO_PIN_7; // Push-pull outputs
-
-    __asm__("rim"); // Enable interrupt support
-}
-
-// INTERRUPTS
-
-void EXTI0_ISR(void) __interrupt(EXTI0_IRQn)
-{
-    if (lastValidButtonInterrupt + 10 < counter4ms)
-        buttonStatus = !buttonStatus;
-}
-
-void TIM4_ISR(void) __interrupt(TIM4_IRQn)
-{
-    ++counter4ms; // Every 4 ms
-    TIM4->SR = 0; // Reset interrupt
+    lastValidButtonInterrupt = 0;
+    buttonStatus = !(GPIOA->IDR & GPIO_PIN_3); // Button active low
 }
