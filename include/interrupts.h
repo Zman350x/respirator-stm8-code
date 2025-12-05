@@ -6,7 +6,11 @@
 
 extern volatile uint32_t counter4ms;
 extern volatile bool buttonStatus;
+extern volatile bool lastButtonStatus;
 extern volatile uint32_t lastValidButtonInterrupt;
+
+extern callback_t pressedCallback;
+extern callback_t releasedCallback;
 
 void EXTI0_ISR(void) __interrupt(EXTI0_IRQn);
 void I2C_ISR(void) __interrupt(I2C_IRQn);

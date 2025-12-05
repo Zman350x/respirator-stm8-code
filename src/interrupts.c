@@ -5,6 +5,7 @@
 
 volatile uint32_t counter4ms;
 volatile bool buttonStatus;
+volatile bool lastButtonStatus;
 volatile uint32_t lastValidButtonInterrupt;
 
 I2C_Direction_TypeDef i2cDirection;
@@ -14,6 +15,9 @@ volatile uint8_t rxBuffer[I2C_BUFFERSIZE];
 volatile uint8_t i2cNumberOfBytes;
 
 static volatile uint8_t i2cIndex;
+
+callback_t pressedCallback = nullptr;
+callback_t releasedCallback = nullptr;
 
 // INTERRUPTS
 
@@ -67,8 +71,14 @@ void TIM4_ISR(void) __interrupt(TIM4_IRQn)
     // Software debouncing
     if (lastValidButtonInterrupt && lastValidButtonInterrupt + 10 < counter4ms)
     {
+        lastButtonStatus = buttonStatus;
         buttonStatus = !(GPIOA->IDR & GPIO_PIN_3); // Button active low
         lastValidButtonInterrupt = 0;
+
+        if (buttonStatus && !lastButtonStatus)
+            pressedCallback();
+        if (!buttonStatus && lastButtonStatus)
+            releasedCallback();
     }
 
     ++counter4ms; // Every 4 ms

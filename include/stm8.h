@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+typedef void (*callback_t)(void);
+
 // GPIO
 
 typedef struct
