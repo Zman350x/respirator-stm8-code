@@ -25,7 +25,8 @@
  *
  */
 
-#define FILTER_TIME     7200000
+// 2 weeks of continuous running (in 4ms increments)
+#define FILTER_TIME     302400000
 
 bool on = false;
 uint32_t timePressed;
